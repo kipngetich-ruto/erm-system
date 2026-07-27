@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: emr_postgres
+    environment:
+      POSTGRES_DB: emr_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secretpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - emr_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d emr_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: emr_backend
+    environment:
+      - DATABASE_URL=postgresql://admin:secretpassword@postgres:5432/emr_db
+      - JWT_ACCESS_SECRET=your-access-secret-change-me
+      - JWT_REFRESH_SECRET=your-refresh-secret-change-me
+      - ENCRYPTION_KEY=32bytehexkeyforaes256gcm1234567890
+      - TOTP_ISSUER=EMR_System
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - emr_network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+volumes:
+  pg_data:
+
+networks:
+  emr_network:
+    driver: bridge
