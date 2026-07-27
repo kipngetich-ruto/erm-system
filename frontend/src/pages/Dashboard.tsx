@@ -4,7 +4,6 @@ import {
   CalendarIcon,
   ClipboardDocumentCheckIcon,
   CurrencyDollarIcon,
-  ArrowUpIcon,
   ClockIcon,
   PlusCircleIcon,
   DocumentMagnifyingGlassIcon,
