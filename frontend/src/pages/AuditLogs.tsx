@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import {
-  DocumentTextIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
   UserCircleIcon,
   ClockIcon,
   ShieldCheckIcon,
-  CheckCircleIcon, // ✅ Added
-  XCircleIcon,      // ✅ Added
+  CheckCircleIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 
 const AuditLogs = () => {
@@ -100,7 +99,7 @@ const AuditLogs = () => {
             />
           </div>
           <div className="flex gap-2">
-            <select className="px-4 py-3 bg-gray-50/80 border border-gray-200/80 rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            <select onChange={(e) => setFilter(e.target.value)} className="px-4 py-3 bg-gray-50/80 border border-gray-200/80 rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
               <option value="all">All Actions</option>
               <option value="login">Login</option>
               <option value="create">Create</option>
