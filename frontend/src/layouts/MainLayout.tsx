@@ -34,7 +34,7 @@ const MainLayout = () => {
     { name: 'Lab Results', icon: BeakerIcon, path: '/lab', roles: ['admin', 'lab_tech', 'doctor'] },
     { name: 'Billing', icon: CreditCardIcon, path: '/billing', roles: ['admin', 'billing'] },
     { name: 'Audit Logs', icon: DocumentTextIcon, path: '/audit', roles: ['admin'] },
-    { name: 'Security (2FA)', icon: KeyIcon, path: '/setup-2fa', roles: ['admin', 'doctor', 'nurse', 'pharmacist', 'lab_tech', 'receptionist', 'billing'] },
+    { name: 'Security', icon: ShieldCheckIcon, path: '/security', roles: ['admin', 'doctor', 'nurse', 'pharmacist', 'lab_tech', 'receptionist', 'billing'] },
   ];
 
   const filteredNav = navItems.filter((item) =>

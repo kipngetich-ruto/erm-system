@@ -9,10 +9,13 @@ import {
   ClipboardIcon,
   CheckIcon,
 } from '@heroicons/react/24/outline';
-import { QRCodeSVG } from 'qrcode.react'; // ✅ Named import
+import { QRCodeSVG } from 'qrcode.react';
+import { authApi } from '../api/endpoints';
+import { useAuthStore } from '../store/authStore';
 
 const TwoFactorSetup = () => {
   const navigate = useNavigate();
+  const { user, setAuth, accessToken } = useAuthStore();
   const [step, setStep] = useState<'loading' | 'setup' | 'verified'>('loading');
   const [secret, setSecret] = useState('');
   const [otpauthUrl, setOtpauthUrl] = useState('');
@@ -21,23 +24,58 @@ const TwoFactorSetup = () => {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
 
-  // Simulate fetching secret from backend
+  // If 2FA is already enabled, show a message instead of the setup form
+  if (user?.isTwoFactorEnabled) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50/30 to-indigo-100/30 p-4">
+      <div className="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/30 text-center max-w-md">
+        <div className="flex justify-center mb-4">
+          <div className="bg-emerald-100 p-4 rounded-full">
+            <ShieldCheckIcon className="w-12 h-12 text-emerald-600" />
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800">2FA Already Enabled</h2>
+        <p className="text-gray-500 mt-2">
+          Your account is already protected with two-factor authentication.
+        </p>
+        <button
+          onClick={() => navigate('/security')}
+          className="mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2.5 px-6 rounded-xl shadow-md shadow-blue-500/25 hover:shadow-lg transition-all duration-200"
+        >
+          Go to Security Settings
+        </button>
+      </div>
+    </div>
+  );
+}
+
+  // If the user is not logged in (should not happen because route is protected)
+  if (!user?.email) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50/30 to-indigo-100/30 p-4">
+        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/30 text-center">
+          <p className="text-gray-500">Please log in to set up 2FA.</p>
+          <button onClick={() => navigate('/login')} className="btn-primary mt-4">Login</button>
+        </div>
+      </div>
+    );
+  }
+
+  // Generate 2FA secret on mount (only if 2FA is not enabled)
   useEffect(() => {
     const generateSecret = async () => {
       try {
-        // Mock – replace with actual API call
-        const mockSecret = 'JBSWY3DPEHPK3PXP';
-        const mockUrl = 'otpauth://totp/EMR_System:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=EMR_System';
-        setSecret(mockSecret);
-        setOtpauthUrl(mockUrl);
+        const res = await authApi.generate2FA(user.email);
+        setSecret(res.data.secret);
+        setOtpauthUrl(res.data.otpauthUrl);
         setStep('setup');
-      } catch {
-        setError('Failed to generate 2FA secret.');
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Failed to generate 2FA secret.');
         setStep('setup');
       }
     };
     generateSecret();
-  }, []);
+  }, [user]);
 
   const handleVerify = async () => {
     if (verificationCode.length !== 6) {
@@ -47,16 +85,18 @@ const TwoFactorSetup = () => {
     setIsVerifying(true);
     setError('');
     try {
-      // Mock verification – replace with actual API
-      const success = verificationCode === '123456';
-      if (success) {
+      const res = await authApi.enable2FA(user.email, verificationCode);
+      if (res.data.success) {
+        // ✅ Update the user in the store to reflect 2FA enabled
+        const updatedUser = { ...user, isTwoFactorEnabled: true };
+        setAuth(updatedUser, accessToken!, localStorage.getItem('refreshToken')!);
         setStep('verified');
         setTimeout(() => navigate('/dashboard'), 2000);
       } else {
-        setError('Invalid 2FA code. Please try again.');
+        setError('Verification failed. Please try again.');
       }
-    } catch {
-      setError('Verification failed.');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Invalid 2FA code. Please try again.');
     } finally {
       setIsVerifying(false);
     }
@@ -111,6 +151,12 @@ const TwoFactorSetup = () => {
             </div>
           ) : (
             <>
+              {error && (
+                <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-600 text-sm">
+                  {error}
+                </div>
+              )}
+
               {/* QR Code */}
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-2">
@@ -183,11 +229,6 @@ const TwoFactorSetup = () => {
                     )}
                   </button>
                 </div>
-                {error && (
-                  <p className="mt-3 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2">
-                    {error}
-                  </p>
-                )}
               </div>
 
               <div className="mt-6 pt-6 border-t border-gray-100/50 flex justify-between items-center">

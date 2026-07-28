@@ -1,11 +1,11 @@
 services:
   postgres:
-    image: postgres:15
+    image: postgres:18
     container_name: emr_postgres
     environment:
       POSTGRES_DB: emr_db
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secretpassword}
     ports:
       - "5432:5432"
     volumes:
@@ -19,17 +19,15 @@ services:
       retries: 5
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    build: .
     container_name: emr_backend
     environment:
-      - DATABASE_URL=postgresql://admin:secretpassword@postgres:5432/emr_db
-      - JWT_ACCESS_SECRET=your-access-secret-change-me
-      - JWT_REFRESH_SECRET=your-refresh-secret-change-me
-      - ENCRYPTION_KEY=32bytehexkeyforaes256gcm1234567890
-      - TOTP_ISSUER=EMR_System
-      - NODE_ENV=development
+      - DATABASE_URL=postgresql://admin:${DB_PASSWORD:-secretpassword}@postgres:5432/emr_db
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-your-access-secret}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-refresh-secret}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+      - TOTP_ISSUER=${TOTP_ISSUER:-EMR_System}
+      - NODE_ENV=${NODE_ENV:-development}
     ports:
       - "3000:3000"
     depends_on:
@@ -38,8 +36,8 @@ services:
     networks:
       - emr_network
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - ./:/app
+      - /app/node_modules 
 
 volumes:
   pg_data:

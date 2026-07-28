@@ -9,7 +9,8 @@ import LabResults from './pages/LabResults';
 import Billing from './pages/Billing';
 import AuditLogs from './pages/AuditLogs';
 import Unauthorized from './pages/Unauthorized';
-import TwoFactorSetup from './pages/TwoFactorSetup'; // ✅ Must exist
+import TwoFactorSetup from './pages/TwoFactorSetup';
+import SecuritySettings from './pages/SecuritySettings';
 import MainLayout from './layouts/MainLayout';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             <Route path="/billing" element={<Billing />} />
             <Route path="/audit" element={<AuditLogs />} />
             <Route path="/setup-2fa" element={<TwoFactorSetup />} />
+            <Route path="/security" element={<SecuritySettings />} />
           </Route>
         </Route>
       </Routes>
