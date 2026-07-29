@@ -62,7 +62,7 @@ jobs:
               --noninteractive --agree-tos --email ${{ secrets.EMAIL }} --keep-until-expiring
 
             # Write Nginx site configuration
-            sudo tee /etc/nginx/sites-available/emr > /dev/null <<EOF
+            sudo tee /etc/nginx/sites-available/emr > /dev/null <<'EOF'
             upstream backend_api {
                 server 127.0.0.1:3000;
                 keepalive 32;
