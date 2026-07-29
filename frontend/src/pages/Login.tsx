@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authApi } from '../api/endpoints';
 import { useAuthStore } from '../store/authStore';
@@ -20,7 +20,13 @@ const Login = () => {
   const [error, setError] = useState<string | null>(null);
   const [totpError, setTotpError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
+  const { setAuth, isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   // Clear errors ONLY when user types – never on submit
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {

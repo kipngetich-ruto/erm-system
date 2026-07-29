@@ -74,7 +74,7 @@ jobs:
             sudo systemctl stop nginx || true
 
             # Obtain SSL certificate
-            sudo certbot certonly --standalone -d ${{ secrets.DOMAIN }} -d www.${{ secrets.DOMAIN }} \
+            sudo certbot certonly --standalone -d ${{ secrets.DOMAIN }} \
               --noninteractive --agree-tos --email ${{ secrets.EMAIL }} --keep-until-expiring
 
             # Enable the site (symlink)
@@ -83,10 +83,6 @@ jobs:
             # Test and reload Nginx
             sudo nginx -t
             sudo systemctl start nginx
-
-            # Create frontend directory if needed (optional)
-            sudo mkdir -p /var/www/emr-frontend
-            sudo chown -R ubuntu:ubuntu /var/www/emr-frontend
 
             # Pull and restart containers
             cd /home/ubuntu/app
