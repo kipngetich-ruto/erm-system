@@ -13,6 +13,7 @@ import TwoFactorSetup from './pages/TwoFactorSetup';
 import SecuritySettings from './pages/SecuritySettings';
 import MainLayout from './layouts/MainLayout';
 import Register from './pages/Register';
+import NotFound from './NotFound';
 
 function App() {
   return (
@@ -38,6 +39,8 @@ function App() {
             <Route path="/security" element={<SecuritySettings />} />
           </Route>
         </Route>
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
