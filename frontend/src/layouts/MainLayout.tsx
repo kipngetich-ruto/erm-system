@@ -10,8 +10,7 @@ import {
   UserCircleIcon,
   ShieldCheckIcon,
   CalendarDaysIcon,
-  DocumentTextIcon,
-  KeyIcon
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
 // Install: npm install @heroicons/react
