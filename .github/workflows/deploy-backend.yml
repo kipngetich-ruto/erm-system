@@ -1,25 +1,31 @@
-name: Deploy Backend to EC2
+name: Build and Deploy Backend
 
 on:
   push:
     branches: [ main ]
     paths:
       - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
+      # ✅ Login to GitHub Container Registry (instead of Docker Hub)
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -27,18 +33,75 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: yourusername/emr-backend:latest
+          # ✅ Tag as GHCR image
+          tags: ghcr.io/${{ secrets.GHCR_USERNAME }}/emr-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Deploy to EC2
+      - name: Deploy, setup Nginx & SSL, and start containers
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull yourusername/emr-backend:latest
-            cd /path/to/your/project
-            docker compose down
+            # ✅ Log in to GHCR on EC2 (so it can pull the private image)
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USERNAME }} --password-stdin
+
+            # Install Certbot if missing
+            if ! command -v certbot &> /dev/null; then
+              sudo apt update
+              sudo apt install -y certbot python3-certbot-nginx
+            fi
+
+            # Stop Nginx for standalone Certbot
+            sudo systemctl stop nginx || true
+
+            # Obtain SSL certificate (if domain resolves)
+            sudo certbot certonly --standalone -d ${{ secrets.DOMAIN }} -d www.${{ secrets.DOMAIN }} \
+              --noninteractive --agree-tos --email ${{ secrets.EMAIL }} --keep-until-expiring
+
+            # Write Nginx site configuration
+            sudo tee /etc/nginx/sites-available/emr > /dev/null <<EOF
+            server {
+                listen 80;
+                server_name ${{ secrets.DOMAIN }} www.${{ secrets.DOMAIN }};
+                return 301 https://\$server_name\$request_uri;
+            }
+            server {
+                listen 443 ssl http2;
+                server_name ${{ secrets.DOMAIN }} www.${{ secrets.DOMAIN }};
+                ssl_certificate /etc/letsencrypt/live/${{ secrets.DOMAIN }}/fullchain.pem;
+                ssl_certificate_key /etc/letsencrypt/live/${{ secrets.DOMAIN }}/privkey.pem;
+                include /etc/letsencrypt/options-ssl-nginx.conf;
+                ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+                location / {
+                    root /var/www/emr-frontend;
+                    try_files \$uri \$uri/ /index.html;
+                }
+
+                location /api/ {
+                    proxy_pass http://127.0.0.1:3000/;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade \$http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host \$host;
+                    proxy_cache_bypass \$http_upgrade;
+                    proxy_set_header X-Real-IP \$remote_addr;
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto \$scheme;
+                }
+            }
+            EOF
+
+            sudo ln -sf /etc/nginx/sites-available/emr /etc/nginx/sites-enabled/
+            sudo systemctl start nginx
+
+            sudo mkdir -p /var/www/emr-frontend
+            sudo chown -R ubuntu:ubuntu /var/www/emr-frontend
+
+            # ✅ Pull and start containers (now using GHCR image)
+            cd /home/ubuntu/app
+            docker compose pull
             docker compose up -d
