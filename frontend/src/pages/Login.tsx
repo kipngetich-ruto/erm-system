@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authApi } from '../api/endpoints';
 import { useAuthStore } from '../store/authStore';
 import {
@@ -211,6 +211,13 @@ const Login = () => {
               </>
             )}
           </form>
+
+          <div className="text-center text-sm mt-4">
+            <span className="text-gray-500">Don't have an account?</span>
+            <Link to="/register" className="ml-2 text-blue-600 hover:text-blue-800 font-medium transition">
+              Register
+            </Link>
+          </div>
 
           {/* Security Badge */}
           <div className="mt-8 flex items-center justify-center gap-4 text-xs text-gray-400 border-t border-gray-100 pt-5">

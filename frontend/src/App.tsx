@@ -12,6 +12,7 @@ import Unauthorized from './pages/Unauthorized';
 import TwoFactorSetup from './pages/TwoFactorSetup';
 import SecuritySettings from './pages/SecuritySettings';
 import MainLayout from './layouts/MainLayout';
+import Register from './pages/Register';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         {/* Public */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         {/* Protected */}

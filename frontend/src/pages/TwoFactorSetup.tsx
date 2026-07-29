@@ -24,8 +24,20 @@ const TwoFactorSetup = () => {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
 
-  // ✅ If 2FA is already enabled, show message
-  if (user?.isTwoFactorEnabled) {
+  // If user is not logged in (shouldn't happen)
+  if (!user?.email) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50/30 to-indigo-100/30 p-4">
+        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/30 text-center">
+          <p className="text-gray-500">Please log in to set up 2FA.</p>
+          <button onClick={() => navigate('/login')} className="btn-primary mt-4">Login</button>
+        </div>
+      </div>
+    );
+  }
+
+  // If 2FA already enabled, show message and don't render setup UI
+  if (user.isTwoFactorEnabled && step !== 'verified') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50/30 to-indigo-100/30 p-4">
         <div className="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/30 text-center max-w-md">
@@ -49,19 +61,7 @@ const TwoFactorSetup = () => {
     );
   }
 
-  // If user is not logged in
-  if (!user?.email) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50/30 to-indigo-100/30 p-4">
-        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/30 text-center">
-          <p className="text-gray-500">Please log in to set up 2FA.</p>
-          <button onClick={() => navigate('/login')} className="btn-primary mt-4">Login</button>
-        </div>
-      </div>
-    );
-  }
-
-  // ✅ Generate 2FA secret on mount – only once per email
+  // Generate 2FA secret on mount
   useEffect(() => {
     const generateSecret = async () => {
       try {
@@ -75,7 +75,7 @@ const TwoFactorSetup = () => {
       }
     };
     generateSecret();
-  }, [user?.email]); // ✅ Only on email change
+  }, []); // only once
 
   const handleVerify = async () => {
     if (verificationCode.length !== 6) {
@@ -87,22 +87,18 @@ const TwoFactorSetup = () => {
     try {
       const res = await authApi.enable2FA(user.email, verificationCode);
       if (res.data.success) {
-        // ✅ Update store with updated user
+        // Update store
         const updatedUser = { ...user, isTwoFactorEnabled: true };
-        
-        // ✅ Use tokens from localStorage directly
         const token = localStorage.getItem('accessToken');
         const refreshToken = localStorage.getItem('refreshToken');
         if (token && refreshToken) {
           setAuth(updatedUser, token, refreshToken);
         } else {
-          console.error('❌ Tokens missing when enabling 2FA');
           setError('Authentication error. Please login again.');
           return;
         }
-
         setStep('verified');
-        // ✅ Delay navigation to ensure store updates
+        // Navigate after a moment to show success
         setTimeout(() => navigate('/dashboard'), 2000);
       } else {
         setError('Verification failed. Please try again.');
