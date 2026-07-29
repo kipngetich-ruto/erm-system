@@ -1,33 +1,36 @@
 services:
   postgres:
-    image: postgres:18
+    image: postgres:18-alpine
     container_name: emr_postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: emr_db
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-secretpassword}
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql
     networks:
       - emr_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d emr_db"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   backend:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: emr_backend
+    restart: always
     environment:
-      - DATABASE_URL=postgresql://admin:${DB_PASSWORD:-secretpassword}@postgres:5432/emr_db
-      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-your-access-secret}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-refresh-secret}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
-      - TOTP_ISSUER=${TOTP_ISSUER:-EMR_System}
-      - NODE_ENV=${NODE_ENV:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:?JWT_ACCESS_SECRET is required}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET is required}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:?ENCRYPTION_KEY is required}
+      - TOTP_ISSUER=${TOTP_ISSUER:?TOTP_ISSUER is required}
+      - CORS_ORIGINS=${CORS_ORIGINS:?CORS_ORIGINS is required}
+      - NODE_ENV=${NODE_ENV:?NODE_ENV is required}
     ports:
       - "3000:3000"
     depends_on:
@@ -35,9 +38,6 @@ services:
         condition: service_healthy
     networks:
       - emr_network
-    volumes:
-      - ./:/app
-      - /app/node_modules 
 
 volumes:
   pg_data:

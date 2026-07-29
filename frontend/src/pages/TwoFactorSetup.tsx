@@ -15,7 +15,7 @@ import { useAuthStore } from '../store/authStore';
 
 const TwoFactorSetup = () => {
   const navigate = useNavigate();
-  const { user, setAuth, accessToken } = useAuthStore();
+  const { user, setAuth } = useAuthStore();
   const [step, setStep] = useState<'loading' | 'setup' | 'verified'>('loading');
   const [secret, setSecret] = useState('');
   const [otpauthUrl, setOtpauthUrl] = useState('');
@@ -24,32 +24,32 @@ const TwoFactorSetup = () => {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
 
-  // If 2FA is already enabled, show a message instead of the setup form
+  // ✅ If 2FA is already enabled, show message
   if (user?.isTwoFactorEnabled) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50/30 to-indigo-100/30 p-4">
-      <div className="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/30 text-center max-w-md">
-        <div className="flex justify-center mb-4">
-          <div className="bg-emerald-100 p-4 rounded-full">
-            <ShieldCheckIcon className="w-12 h-12 text-emerald-600" />
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50/30 to-indigo-100/30 p-4">
+        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/30 text-center max-w-md">
+          <div className="flex justify-center mb-4">
+            <div className="bg-emerald-100 p-4 rounded-full">
+              <ShieldCheckIcon className="w-12 h-12 text-emerald-600" />
+            </div>
           </div>
+          <h2 className="text-2xl font-bold text-gray-800">2FA Already Enabled</h2>
+          <p className="text-gray-500 mt-2">
+            Your account is already protected with two-factor authentication.
+          </p>
+          <button
+            onClick={() => navigate('/security')}
+            className="mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2.5 px-6 rounded-xl shadow-md shadow-blue-500/25 hover:shadow-lg transition-all duration-200"
+          >
+            Go to Security Settings
+          </button>
         </div>
-        <h2 className="text-2xl font-bold text-gray-800">2FA Already Enabled</h2>
-        <p className="text-gray-500 mt-2">
-          Your account is already protected with two-factor authentication.
-        </p>
-        <button
-          onClick={() => navigate('/security')}
-          className="mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2.5 px-6 rounded-xl shadow-md shadow-blue-500/25 hover:shadow-lg transition-all duration-200"
-        >
-          Go to Security Settings
-        </button>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-  // If the user is not logged in (should not happen because route is protected)
+  // If user is not logged in
   if (!user?.email) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50/30 to-indigo-100/30 p-4">
@@ -61,7 +61,7 @@ const TwoFactorSetup = () => {
     );
   }
 
-  // Generate 2FA secret on mount (only if 2FA is not enabled)
+  // ✅ Generate 2FA secret on mount – only once per email
   useEffect(() => {
     const generateSecret = async () => {
       try {
@@ -75,7 +75,7 @@ const TwoFactorSetup = () => {
       }
     };
     generateSecret();
-  }, [user]);
+  }, [user?.email]); // ✅ Only on email change
 
   const handleVerify = async () => {
     if (verificationCode.length !== 6) {
@@ -87,10 +87,22 @@ const TwoFactorSetup = () => {
     try {
       const res = await authApi.enable2FA(user.email, verificationCode);
       if (res.data.success) {
-        // ✅ Update the user in the store to reflect 2FA enabled
+        // ✅ Update store with updated user
         const updatedUser = { ...user, isTwoFactorEnabled: true };
-        setAuth(updatedUser, accessToken!, localStorage.getItem('refreshToken')!);
+        
+        // ✅ Use tokens from localStorage directly
+        const token = localStorage.getItem('accessToken');
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (token && refreshToken) {
+          setAuth(updatedUser, token, refreshToken);
+        } else {
+          console.error('❌ Tokens missing when enabling 2FA');
+          setError('Authentication error. Please login again.');
+          return;
+        }
+
         setStep('verified');
+        // ✅ Delay navigation to ensure store updates
         setTimeout(() => navigate('/dashboard'), 2000);
       } else {
         setError('Verification failed. Please try again.');

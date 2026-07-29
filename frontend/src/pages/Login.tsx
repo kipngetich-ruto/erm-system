@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../api/endpoints';
 import { useAuthStore } from '../store/authStore';
-import { 
-  ShieldCheckIcon, 
-  EnvelopeIcon, 
-  LockClosedIcon, 
+import {
+  ShieldCheckIcon,
+  EnvelopeIcon,
+  LockClosedIcon,
   KeyIcon,
-  HeartIcon 
+  HeartIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
 const Login = () => {
@@ -16,21 +17,41 @@ const Login = () => {
   const [totp, setTotp] = useState('');
   const [requires2FA, setRequires2FA] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [totpError, setTotpError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  // Clear errors ONLY when user types – never on submit
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (error) setError(null);
+  };
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    if (error) setError(null);
+  };
+  const handleTotpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTotp(e.target.value);
+    if (totpError) setTotpError(null);
+  };
+
+  const handleLogin = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       if (!requires2FA) {
         const res = await authApi.login(email, password);
-        if (res.data.requires2FA) {
+        const data = res.data;
+
+        if (data.requires2FA) {
           setRequires2FA(true);
           setLoading(false);
           return;
         }
-        const { user, accessToken, refreshToken } = res.data;
+
+        const { user, accessToken, refreshToken } = data;
         setAuth(user, accessToken, refreshToken);
         navigate('/dashboard');
       } else {
@@ -39,8 +60,13 @@ const Login = () => {
         setAuth(user, accessToken, refreshToken);
         navigate('/dashboard');
       }
-    } catch (error) {
-      alert('Invalid credentials or 2FA code.');
+    } catch (err: any) {
+      const message = err.response?.data?.message || err.message || 'Something went wrong. Please try again.';
+      if (requires2FA) {
+        setTotpError(message);
+      } else {
+        setError(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -85,7 +111,7 @@ const Login = () => {
                       type="email"
                       placeholder="doctor@hospital.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={handleEmailChange}
                       className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       required
                     />
@@ -108,12 +134,20 @@ const Login = () => {
                       type="password"
                       placeholder="••••••••"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={handlePasswordChange}
                       className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       required
                     />
                   </div>
                 </div>
+
+                {/* Error message – stays visible until user types */}
+                {error && (
+                  <div className="flex items-start gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">
+                    <ExclamationTriangleIcon className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
+                )}
 
                 <button
                   type="submit"
@@ -140,12 +174,20 @@ const Login = () => {
                     type="text"
                     placeholder="000000"
                     value={totp}
-                    onChange={(e) => setTotp(e.target.value)}
+                    onChange={handleTotpChange}
                     maxLength={6}
                     className="w-full px-4 py-3 text-center text-2xl tracking-[0.5em] bg-gray-50 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     required
                   />
                 </div>
+
+                {/* 2FA error message – stays visible until user types */}
+                {totpError && (
+                  <div className="flex items-start gap-2 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">
+                    <ExclamationTriangleIcon className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <span>{totpError}</span>
+                  </div>
+                )}
 
                 <button
                   type="submit"
@@ -157,7 +199,11 @@ const Login = () => {
 
                 <button
                   type="button"
-                  onClick={() => setRequires2FA(false)}
+                  onClick={() => {
+                    setRequires2FA(false);
+                    setTotp('');
+                    setTotpError(null);
+                  }}
                   className="text-sm text-gray-500 hover:text-gray-700 underline w-full text-center transition"
                 >
                   ← Back to login

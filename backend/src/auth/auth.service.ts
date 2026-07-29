@@ -201,7 +201,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, role: user.role },
+      user: { id: user.id, email: user.email, role: user.role, isTwoFactorEnabled: user.isTwoFactorEnabled },
     };
   }
 
@@ -226,7 +226,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, role: user.role },
+      user: { id: user.id, email: user.email, role: user.role, isTwoFactorEnabled: user.isTwoFactorEnabled },
     };
   }
 
