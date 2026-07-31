@@ -28,10 +28,35 @@ export const authApi = {
     api.patch('/auth/change-password', { currentPassword, newPassword }),
 };
 
+export const dashboardApi = {
+  getStats: () => api.get('/dashboard/stats'),
+  
+  getActivities: () => api.get('/dashboard/activities'),
+};
+
 export const patientApi = {
-  getAll: () => api.get('/patients'),
-  create: (data: any) => api.post('/patients', data),
+  getAll: (search?: string) => api.get('/patients', { params: { search } }),
+
   getById: (id: string) => api.get(`/patients/${id}`),
+
+  create: (data: any) => api.post('/patients', data),
+
+  update: (id: string, data: any) => api.put(`/patients/${id}`, data),
+
+  delete: (id: string) => api.delete(`/patients/${id}`),
+};
+
+export const appointmentApi = {
+  getAll: (params?: { patientId?: string; doctorId?: string; status?: string; from?: string; to?: string }) =>
+    api.get('/appointments', { params }),
+
+  getById: (id: string) => api.get(`/appointments/${id}`),
+
+  create: (data: any) => api.post('/appointments', data),
+
+  update: (id: string, data: any) => api.put(`/appointments/${id}`, data),
+  
+  delete: (id: string) => api.delete(`/appointments/${id}`),
 };
 
 export const recordApi = {

@@ -5,6 +5,10 @@ import { EncryptionModule } from './encryption/encryption.module';
 import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { PatientsModule } from './patients/patients.module';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -12,6 +16,10 @@ import { AppService } from './app.service';
     DbModule,
     EncryptionModule,
     AuthModule,
+    DashboardModule,
+    PatientsModule,
+    AppointmentsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

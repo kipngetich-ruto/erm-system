@@ -78,7 +78,7 @@ jobs:
               --noninteractive --agree-tos --email ${{ secrets.EMAIL }} --keep-until-expiring
 
             # Enable the site (symlink)
-            sudo ln -sf /etc/nginx/sites-available/emr /etc/nginx/sites-enabled/
+            sudo ln -sf /etc/nginx/sites-available/emr.conf /etc/nginx/sites-enabled/
 
             # Test and reload Nginx
             sudo nginx -t
