@@ -52,18 +52,17 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  // Build stats cards dynamically
   const statsCards = stats ? [
-    { name: 'Total Patients', value: stats.totalPatients.toLocaleString(), change: null, icon: UserGroupIcon, bg: 'bg-blue-50', text: 'text-blue-600' },
-    { name: "Today's Appointments", value: stats.todayAppointments.toLocaleString(), change: null, icon: CalendarIcon, bg: 'bg-emerald-50', text: 'text-emerald-600' },
-    { name: 'Active Records', value: stats.activeRecords.toLocaleString(), change: null, icon: ClipboardDocumentCheckIcon, bg: 'bg-purple-50', text: 'text-purple-600' },
-    { name: 'Pending Bills', value: stats.pendingBills.toLocaleString(), change: null, icon: CurrencyDollarIcon, bg: 'bg-amber-50', text: 'text-amber-600' },
+    { name: 'Total Patients', value: stats.totalPatients.toLocaleString(), icon: UserGroupIcon, bg: 'bg-blue-50', text: 'text-blue-600' },
+    { name: "Today's Appointments", value: stats.todayAppointments.toLocaleString(), icon: CalendarIcon, bg: 'bg-emerald-50', text: 'text-emerald-600' },
+    { name: 'Active Records', value: stats.activeRecords.toLocaleString(), icon: ClipboardDocumentCheckIcon, bg: 'bg-purple-50', text: 'text-purple-600' },
+    { name: 'Pending Bills', value: stats.pendingBills.toLocaleString(), icon: CurrencyDollarIcon, bg: 'bg-amber-50', text: 'text-amber-600' },
   ] : [];
 
   const quickActions = [
-    { name: 'Register Patient', icon: PlusCircleIcon, color: 'blue', path: '/register-patient' },
-    { name: 'New Appointment', icon: CalendarIcon, color: 'emerald', path: '/appointments/new' },
-    { name: 'Create Record', icon: ClipboardDocumentCheckIcon, color: 'purple', path: '/records/new' },
+    { name: 'Register Patient', icon: PlusCircleIcon, color: 'blue', path: '/patients' },
+    { name: 'New Appointment', icon: CalendarIcon, color: 'emerald', path: '/appointments' },
+    { name: 'Create Record', icon: ClipboardDocumentCheckIcon, color: 'purple', path: '/records' },
     { name: 'View Audit Log', icon: DocumentMagnifyingGlassIcon, color: 'amber', path: '/audit' },
   ];
 
@@ -117,14 +116,6 @@ const Dashboard = () => {
               <div className={`${stat.bg} p-3 rounded-xl group-hover:scale-105 transition`}>
                 <stat.icon className={`w-6 h-6 ${stat.text}`} />
               </div>
-              {/* We removed change badge since it's not coming from backend yet */}
-              {stat.change !== null && (
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                  stat.change.startsWith('+') ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-                }`}>
-                  {stat.change}
-                </span>
-              )}
             </div>
             <p className="text-3xl font-extrabold text-gray-800 mt-4">{stat.value}</p>
             <p className="text-sm text-gray-500 font-medium">{stat.name}</p>
@@ -134,7 +125,6 @@ const Dashboard = () => {
 
       {/* Bottom Grid: Activity + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Activity */}
         <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/50 shadow-lg shadow-gray-200/50">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
@@ -170,7 +160,6 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Quick Actions */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/50 shadow-lg shadow-gray-200/50">
           <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-2 gap-3">
