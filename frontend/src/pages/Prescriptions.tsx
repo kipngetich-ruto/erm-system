@@ -9,6 +9,7 @@ import {
   CheckCircleIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 interface Prescription {
   id: string;
@@ -41,6 +42,12 @@ const Prescriptions = () => {
   const [formData, setFormData] = useState<any>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
+
+  // Confirm Dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    id: string | null;
+  }>({ isOpen: false, id: null });
 
   const fetchPrescriptions = async () => {
     try {
@@ -130,7 +137,8 @@ const Prescriptions = () => {
         await api.put(`/prescriptions/${editing.id}`, formData);
         setFormSuccess('Prescription updated!');
       } else {
-        await api.post('/prescriptions', formData);
+        const { status, ...createData } = formData;
+        await api.post('/prescriptions', createData);
         setFormSuccess('Prescription created!');
       }
       setTimeout(() => {
@@ -143,7 +151,7 @@ const Prescriptions = () => {
   };
 
   const handleDispense = async (id: string) => {
-    if (!confirm('Mark this prescription as dispensed?')) return;
+    if (!confirm('Mark this prescription as dispensed?')) return; // still uses confirm – can later replace with dialog
     try {
       await api.put(`/prescriptions/${id}`, { status: 'dispensed' });
       fetchPrescriptions();
@@ -152,13 +160,19 @@ const Prescriptions = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this prescription?')) return;
+  const handleDelete = (id: string) => {
+    setConfirmDialog({ isOpen: true, id });
+  };
+
+  const confirmDelete = async () => {
+    if (!confirmDialog.id) return;
     try {
-      await api.delete(`/prescriptions/${id}`);
+      await api.delete(`/prescriptions/${confirmDialog.id}`);
       fetchPrescriptions();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to delete.');
+    } finally {
+      setConfirmDialog({ isOpen: false, id: null }); // reset after
     }
   };
 
@@ -274,7 +288,7 @@ const Prescriptions = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal for Create/Edit */}
       {showModal && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -395,6 +409,18 @@ const Prescriptions = () => {
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, id: null })}
+        onConfirm={confirmDelete}
+        title="Delete Prescription?"
+        message="This action cannot be undone. The prescription will be permanently removed from the system."
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmColor="red"
+      />
     </div>
   );
 };

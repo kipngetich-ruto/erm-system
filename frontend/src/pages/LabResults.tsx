@@ -9,6 +9,7 @@ import {
   XMarkIcon,
   DocumentArrowUpIcon,
 } from '@heroicons/react/24/outline';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 interface LabResult {
   id: string;
@@ -46,6 +47,12 @@ const LabResults = () => {
   const [uploadingResult, setUploadingResult] = useState<LabResult | null>(null);
   const [resultText, setResultText] = useState('');
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Confirm Dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    id: string | null;
+  }>({ isOpen: false, id: null });
 
   const fetchResults = async () => {
     try {
@@ -118,7 +125,7 @@ const LabResults = () => {
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async (e: React.SubmitEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
     setFormSuccess(null);
@@ -131,7 +138,9 @@ const LabResults = () => {
         await api.put(`/lab-results/${editing.id}`, formData);
         setFormSuccess('Lab result updated!');
       } else {
-        await api.post('/lab-results', formData);
+        // ✅ Create: omit status
+        const { status, ...createData } = formData;
+        await api.post('/lab-results', createData);
         setFormSuccess('Lab request created!');
       }
       setTimeout(() => {
@@ -165,13 +174,19 @@ const LabResults = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this lab result?')) return;
+  const handleDelete = (id: string) => {
+    setConfirmDialog({ isOpen: true, id });
+  };
+
+  const confirmDelete = async () => {
+    if (!confirmDialog.id) return;
     try {
-      await api.delete(`/lab-results/${id}`);
+      await api.delete(`/lab-results/${confirmDialog.id}`);
       fetchResults();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to delete.');
+    } finally {
+      setConfirmDialog({ isOpen: false, id: null });
     }
   };
 
@@ -452,6 +467,18 @@ const LabResults = () => {
           </div>
         </div>
       )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ isOpen: false, id: null })}
+        onConfirm={confirmDelete}
+        title="Delete Lab Result?"
+        message="This action cannot be undone. The lab result will be permanently removed from the system."
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmColor="red"
+      />
     </div>
   );
 };
