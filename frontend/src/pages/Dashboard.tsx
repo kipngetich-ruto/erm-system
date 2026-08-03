@@ -28,6 +28,7 @@ interface Activity {
 const Dashboard = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [stats, setStats] = useState<Stats | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -83,86 +84,93 @@ const Dashboard = () => {
   }
 
   return (
-    <div>
-      {/* Welcome Header */}
-      <div className="mb-8">
+    <div className="px-2 sm:px-4 md:px-6">
+      {/* Welcome Header – Mobile Optimised */}
+      <div className="mb-6 sm:mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-            <span className="text-xl text-white font-bold">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25 flex-shrink-0">
+            <span className="text-lg sm:text-xl text-white font-bold">
               {user?.email?.charAt(0).toUpperCase() || 'U'}
             </span>
           </div>
-          <div>
-            <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-2xl md:text-3xl font-extrabold text-gray-800 tracking-tight truncate">
               Welcome back, {user?.email?.split('@')[0] || 'User'}
             </h1>
-            <p className="text-gray-500 flex items-center gap-1">
+            <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-1 flex-wrap">
               <span className="capitalize font-medium text-gray-700">{user?.role}</span>
-              <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-              <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+              <span className="w-1 h-1 bg-gray-300 rounded-full hidden xs:inline-block"></span>
+              <span className="text-gray-400 hidden xs:inline">
+                {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+              </span>
+              <span className="text-gray-400 xs:hidden">
+                {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </span>
             </p>
           </div>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Stats Grid – Responsive */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
         {statsCards.map((stat, idx) => (
           <div
             key={idx}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/50 shadow-lg shadow-gray-200/50 hover:shadow-xl transition-all duration-300 group"
+            className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/50 shadow-lg shadow-gray-200/50 hover:shadow-xl transition-all duration-300 group"
           >
             <div className="flex items-center justify-between">
-              <div className={`${stat.bg} p-3 rounded-xl group-hover:scale-105 transition`}>
-                <stat.icon className={`w-6 h-6 ${stat.text}`} />
+              <div className={`${stat.bg} p-2 sm:p-3 rounded-xl group-hover:scale-105 transition`}>
+                <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${stat.text}`} />
               </div>
             </div>
-            <p className="text-3xl font-extrabold text-gray-800 mt-4">{stat.value}</p>
-            <p className="text-sm text-gray-500 font-medium">{stat.name}</p>
+            <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-gray-800 mt-2 sm:mt-4">{stat.value}</p>
+            <p className="text-xs sm:text-sm text-gray-500 font-medium truncate">{stat.name}</p>
           </div>
         ))}
       </div>
 
-      {/* Bottom Grid: Activity + Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/50 shadow-lg shadow-gray-200/50">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <ClockIcon className="w-5 h-5 text-blue-600" />
+      {/* Bottom Grid – Stack on mobile, side-by-side on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Recent Activity */}
+        <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/50 shadow-lg shadow-gray-200/50">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+              <ClockIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               Recent Activity
             </h3>
-            <button className="text-sm text-blue-600 font-medium hover:text-blue-800 transition">
+            <button className="text-xs sm:text-sm text-blue-600 font-medium hover:text-blue-800 transition">
               View All →
             </button>
           </div>
           {activities.length === 0 ? (
-            <p className="text-gray-500 text-center py-6">No recent activity</p>
+            <p className="text-gray-500 text-center py-4 sm:py-6">No recent activity</p>
           ) : (
-            <ul className="space-y-3">
-              {activities.map((activity, index) => (
+            <ul className="space-y-2 sm:space-y-3">
+              {activities.slice(0, 4).map((activity, index) => (
                 <li
                   key={index}
-                  className="flex items-center justify-between p-3 bg-white/50 rounded-xl border border-gray-100/50 hover:bg-white transition"
+                  className="flex items-center justify-between p-2 sm:p-3 bg-white/50 rounded-xl border border-gray-100/50 hover:bg-white transition"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${
                       activity.type === 'update' ? 'bg-blue-500' :
                       activity.type === 'lab' ? 'bg-purple-500' :
                       activity.type === 'pharma' ? 'bg-emerald-500' :
                       activity.type === 'register' ? 'bg-amber-500' : 'bg-gray-300'
                     }`}></div>
-                    <span className="text-sm text-gray-700 font-medium">{activity.action}</span>
+                    <span className="text-xs sm:text-sm text-gray-700 font-medium truncate">{activity.action}</span>
                   </div>
-                  <span className="text-xs text-gray-400">{activity.time}</span>
+                  <span className="text-xs text-gray-400 flex-shrink-0 ml-2">{activity.time}</span>
                 </li>
               ))}
             </ul>
           )}
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/50 shadow-lg shadow-gray-200/50">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 gap-3">
+        {/* Quick Actions – Responsive grid */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/50 shadow-lg shadow-gray-200/50">
+          <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-2 gap-2 sm:gap-3">
             {quickActions.map((action) => {
               const colorMap = {
                 blue: 'bg-blue-50 hover:bg-blue-100 text-blue-700',
@@ -174,10 +182,10 @@ const Dashboard = () => {
                 <button
                   key={action.name}
                   onClick={() => navigate(action.path)}
-                  className={`${colorMap[action.color as keyof typeof colorMap]} p-4 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-[1.02] shadow-sm`}
+                  className={`${colorMap[action.color as keyof typeof colorMap]} p-3 sm:p-4 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 hover:scale-[1.02] shadow-sm`}
                 >
-                  <action.icon className="w-5 h-5 mx-auto mb-1.5" />
-                  {action.name}
+                  <action.icon className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 sm:mb-1.5" />
+                  <span className="text-[10px] sm:text-xs">{action.name}</span>
                 </button>
               );
             })}

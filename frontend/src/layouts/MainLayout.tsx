@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import {
@@ -11,15 +12,16 @@ import {
   Cog6ToothIcon,
   CalendarDaysIcon,
   DocumentTextIcon,
-  ClipboardDocumentCheckIcon
+  ClipboardDocumentCheckIcon,
+  Bars3Icon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
-
-// Install: npm install @heroicons/react
 
 const MainLayout = () => {
   const { user, clearAuth } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     clearAuth();
@@ -42,10 +44,35 @@ const MainLayout = () => {
     item.roles.includes(user?.role || '') || user?.role === 'admin'
   );
 
+  // Close sidebar when a nav item is clicked on mobile
+  const handleNavClick = (path: string) => {
+    navigate(path);
+    setSidebarOpen(false);
+  };
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-100 via-blue-50/30 to-indigo-100/30">
-      {/* Sidebar - Glassmorphism */}
-      <aside className="w-72 bg-white/70 backdrop-blur-xl border-r border-white/50 shadow-xl flex flex-col flex-shrink-0">
+      {/* Mobile Hamburger Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-white/80 backdrop-blur-sm shadow-lg border border-white/50 transition-all duration-200 hover:bg-white"
+      >
+        {sidebarOpen ? (
+          <XMarkIcon className="w-6 h-6 text-gray-700" />
+        ) : (
+          <Bars3Icon className="w-6 h-6 text-gray-700" />
+        )}
+      </button>
+
+      {/* Sidebar – Glassmorphism with overlay on mobile */}
+      <aside
+        className={`
+          fixed lg:relative z-40 w-72 bg-white/70 backdrop-blur-xl border-r border-white/50 shadow-xl flex flex-col flex-shrink-0
+          transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0
+        `}
+      >
         {/* Brand */}
         <div className="p-6 border-b border-white/50">
           <div className="flex items-center gap-3">
@@ -66,7 +93,7 @@ const MainLayout = () => {
             return (
               <button
                 key={item.name}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNavClick(item.path)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                   isActive
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25'
@@ -106,7 +133,7 @@ const MainLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto p-8">
+      <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
           <Outlet />
         </div>
