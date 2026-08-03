@@ -56,7 +56,7 @@ The database is normalised to **Third Normal Form (3NF)** with the following key
 
 **Stored Procedures & Triggers**:
 - `sp_create_medical_record` – inserts a record and logs the action
-- `trg_audit_patients` – automatically logs INSERT/UPDATE/DELETE on patients table
+- `fn_audit_patients` – automatically logs INSERT/UPDATE/DELETE on patients table
 
 ---
 
@@ -113,6 +113,7 @@ The database is normalised to **Third Normal Form (3NF)** with the following key
 
 ## 📁 Project Structure
 
+```bash
 emr-system/
 │
 ├── backend/                              # NestJS Backend API
@@ -290,7 +291,7 @@ emr-system/
 ├── .gitignore
 ├── README.md
 └── LICENSE
-
+```
 
 ---
 

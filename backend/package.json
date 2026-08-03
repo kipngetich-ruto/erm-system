@@ -17,6 +17,7 @@
     "db:migrate": "drizzle-kit migrate --config src/db/drizzle.config.ts",
     "db:reset": "drizzle-kit push --config src/db/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config src/db/drizzle.config.ts",
+    "db:custom" : "npx drizzle-kit generate --config src/db/drizzle.config.ts --custom --name=stored_procedures_and_triggers",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
