@@ -102,3 +102,16 @@ export const labResultsApi = {
   
   delete: (id: string) => api.delete(`/lab-results/${id}`),
 };
+
+export const billingApi = {
+  getAll: (params?: { patientId?: string; status?: string }) =>
+    api.get('/billing', { params }),
+
+  getById: (id: string) => api.get(`/billing/${id}`),
+
+  create: (data: any) => api.post('/billing', data),
+
+  update: (id: string, data: any) => api.put(`/billing/${id}`, data),
+  
+  delete: (id: string) => api.delete(`/billing/${id}`),
+};

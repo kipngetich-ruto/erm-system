@@ -8,7 +8,7 @@ import {
   CreditCardIcon,
   ArrowRightStartOnRectangleIcon,
   UserCircleIcon,
-  ShieldCheckIcon,
+  Cog6ToothIcon,
   CalendarDaysIcon,
   DocumentTextIcon,
   ClipboardDocumentCheckIcon
@@ -33,9 +33,9 @@ const MainLayout = () => {
     { name: 'Medical Records', icon: ClipboardDocumentListIcon, path: '/records', roles: ['admin', 'doctor'] },
     { name: 'Prescriptions', icon: ClipboardDocumentCheckIcon, path: '/prescriptions', roles: ['admin', 'doctor', 'pharmacist', 'nurse'] },
     { name: 'Lab Results', icon: BeakerIcon, path: '/lab-results', roles: ['admin', 'doctor', 'lab_tech', 'nurse'] },
-    { name: 'Billing', icon: CreditCardIcon, path: '/billing', roles: ['admin', 'billing'] },
+    { name: 'Billing', icon: CreditCardIcon, path: '/billing', roles: ['admin', 'billing', 'receptionist'] },
     { name: 'Audit Logs', icon: DocumentTextIcon, path: '/audit', roles: ['admin'] },
-    { name: 'Security', icon: ShieldCheckIcon, path: '/security', roles: ['admin', 'doctor', 'nurse', 'pharmacist', 'lab_tech', 'receptionist', 'billing'] },
+    { name: 'Settings', icon: Cog6ToothIcon, path: '/security', roles: ['admin', 'doctor', 'nurse', 'pharmacist', 'lab_tech', 'receptionist', 'billing'] },
   ];
 
   const filteredNav = navItems.filter((item) =>
@@ -50,7 +50,7 @@ const MainLayout = () => {
         <div className="p-6 border-b border-white/50">
           <div className="flex items-center gap-3">
             <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2.5 rounded-xl shadow-lg">
-              <ShieldCheckIcon className="w-6 h-6 text-white" />
+              <Cog6ToothIcon className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-xl font-extrabold text-gray-800 tracking-tight">EMR System</h1>
