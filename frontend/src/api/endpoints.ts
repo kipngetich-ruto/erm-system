@@ -89,3 +89,16 @@ export const prescriptionApi = {
   
   delete: (id: string) => api.delete(`/prescriptions/${id}`),
 };
+
+export const labResultsApi = {
+  getAll: (params?: { patientId?: string; doctorId?: string; status?: string }) =>
+    api.get('/lab-results', { params }),
+
+  getById: (id: string) => api.get(`/lab-results/${id}`),
+
+  create: (data: any) => api.post('/lab-results', data),
+
+  update: (id: string, data: any) => api.put(`/lab-results/${id}`, data),
+  
+  delete: (id: string) => api.delete(`/lab-results/${id}`),
+};

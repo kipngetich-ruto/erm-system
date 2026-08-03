@@ -12,6 +12,7 @@ import { UsersModule } from './users/users.module';
 import { MedicalRecordsModule } from './medical-records/medical-records.module';
 import { AuditModule } from './audit/audit.module';
 import { PrescriptionsModule } from './prescriptions/prescriptions.module';
+import { LabResultsModule } from './lab-results/lab-results.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PrescriptionsModule } from './prescriptions/prescriptions.module';
     MedicalRecordsModule,
     AuditModule,
     PrescriptionsModule,
+    LabResultsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

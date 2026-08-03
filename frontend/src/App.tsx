@@ -34,7 +34,7 @@ function App() {
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/records" element={<MedicalRecords />} />
             <Route path="/prescriptions" element={<Prescriptions />} />
-            <Route path="/lab" element={<LabResults />} />
+            <Route path="/lab-results" element={<LabResults />} />
             <Route path="/billing" element={<Billing />} />
             <Route path="/audit" element={<AuditLogs />} />
             <Route path="/setup-2fa" element={<TwoFactorSetup />} />

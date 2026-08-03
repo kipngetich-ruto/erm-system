@@ -32,7 +32,7 @@ const MainLayout = () => {
     { name: 'Appointments', icon: CalendarDaysIcon, path: '/appointments', roles: ['admin', 'doctor', 'receptionist'] },
     { name: 'Medical Records', icon: ClipboardDocumentListIcon, path: '/records', roles: ['admin', 'doctor'] },
     { name: 'Prescriptions', icon: ClipboardDocumentCheckIcon, path: '/prescriptions', roles: ['admin', 'doctor', 'pharmacist', 'nurse'] },
-    { name: 'Lab Results', icon: BeakerIcon, path: '/lab', roles: ['admin', 'lab_tech', 'doctor'] },
+    { name: 'Lab Results', icon: BeakerIcon, path: '/lab-results', roles: ['admin', 'doctor', 'lab_tech', 'nurse'] },
     { name: 'Billing', icon: CreditCardIcon, path: '/billing', roles: ['admin', 'billing'] },
     { name: 'Audit Logs', icon: DocumentTextIcon, path: '/audit', roles: ['admin'] },
     { name: 'Security', icon: ShieldCheckIcon, path: '/security', roles: ['admin', 'doctor', 'nurse', 'pharmacist', 'lab_tech', 'receptionist', 'billing'] },
