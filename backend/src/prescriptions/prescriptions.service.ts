@@ -1,11 +1,10 @@
 import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { SQL, and, desc, eq, ilike } from 'drizzle-orm';
+import { and, desc, eq, SQL } from 'drizzle-orm';
 import * as schema from '../db/schema';
 import { prescriptions, patients, users } from '../db/schema';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { UpdatePrescriptionDto } from './dto/update-prescription.dto';
-import { DispensePrescriptionDto } from './dto/dispense-prescription.dto';
 import { EncryptionService } from '../encryption/encryption.service';
 
 @Injectable()

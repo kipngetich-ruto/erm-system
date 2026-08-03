@@ -19,9 +19,7 @@ export class PrescriptionsController {
     @Query('status') status?: string,
     @Request() req?: any,
   ) {
-    // Doctors see only their own prescriptions
     if (req.user.role === 'doctor') doctorId = req.user.userId;
-    // Pharmacists see all active (or all)
     return this.service.findAll({ patientId, doctorId, status });
   }
 

@@ -76,3 +76,16 @@ export const auditApi = {
   getLogs: (limit?: number, offset?: number) =>
     api.get('/audit', { params: { limit, offset } }),
 };
+
+export const prescriptionApi = {
+  getAll: (params?: { patientId?: string; doctorId?: string; status?: string }) =>
+    api.get('/prescriptions', { params }),
+
+  getById: (id: string) => api.get(`/prescriptions/${id}`),
+
+  create: (data: any) => api.post('/prescriptions', data),
+
+  update: (id: string, data: any) => api.put(`/prescriptions/${id}`, data),
+  
+  delete: (id: string) => api.delete(`/prescriptions/${id}`),
+};

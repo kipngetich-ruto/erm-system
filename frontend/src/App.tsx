@@ -14,6 +14,7 @@ import SecuritySettings from './pages/SecuritySettings';
 import MainLayout from './layouts/MainLayout';
 import Register from './pages/Register';
 import NotFound from './NotFound';
+import Prescriptions from './pages/Prescriptions';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/patients" element={<Patients />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/records" element={<MedicalRecords />} />
+            <Route path="/prescriptions" element={<Prescriptions />} />
             <Route path="/lab" element={<LabResults />} />
             <Route path="/billing" element={<Billing />} />
             <Route path="/audit" element={<AuditLogs />} />

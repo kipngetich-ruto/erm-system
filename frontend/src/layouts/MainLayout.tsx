@@ -6,11 +6,12 @@ import {
   ClipboardDocumentListIcon,
   BeakerIcon,
   CreditCardIcon,
-  ArrowRightOnRectangleIcon,
+  ArrowRightStartOnRectangleIcon,
   UserCircleIcon,
   ShieldCheckIcon,
   CalendarDaysIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  ClipboardDocumentCheckIcon
 } from '@heroicons/react/24/outline';
 
 // Install: npm install @heroicons/react
@@ -30,6 +31,7 @@ const MainLayout = () => {
     { name: 'Patients', icon: UsersIcon, path: '/patients', roles: ['admin', 'doctor', 'nurse', 'receptionist'] },
     { name: 'Appointments', icon: CalendarDaysIcon, path: '/appointments', roles: ['admin', 'doctor', 'receptionist'] },
     { name: 'Medical Records', icon: ClipboardDocumentListIcon, path: '/records', roles: ['admin', 'doctor'] },
+    { name: 'Prescriptions', icon: ClipboardDocumentCheckIcon, path: '/prescriptions', roles: ['admin', 'doctor', 'pharmacist', 'nurse'] },
     { name: 'Lab Results', icon: BeakerIcon, path: '/lab', roles: ['admin', 'lab_tech', 'doctor'] },
     { name: 'Billing', icon: CreditCardIcon, path: '/billing', roles: ['admin', 'billing'] },
     { name: 'Audit Logs', icon: DocumentTextIcon, path: '/audit', roles: ['admin'] },
@@ -97,7 +99,7 @@ const MainLayout = () => {
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 text-red-500 hover:text-red-700 bg-red-50/50 hover:bg-red-100/70 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium border border-red-200/30"
           >
-            <ArrowRightOnRectangleIcon className="w-4 h-4" />
+            <ArrowRightStartOnRectangleIcon className="w-4 h-4" />
             Logout
           </button>
         </div>
