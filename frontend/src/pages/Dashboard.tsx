@@ -28,7 +28,6 @@ interface Activity {
 const Dashboard = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [stats, setStats] = useState<Stats | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
