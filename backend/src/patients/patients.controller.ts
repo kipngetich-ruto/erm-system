@@ -31,7 +31,8 @@ export class PatientsController {
   @Post()
   @Roles('admin', 'receptionist')
   async create(@Body() createPatientDto: CreatePatientDto, @Request() req: RequestWithUser) {
-    return this.patientsService.create(createPatientDto, req.user.userId);
+    const patient = await this.patientsService.create(createPatientDto, req.user.userId);
+    return patient;
   }
 
   @Put(':id')
@@ -47,6 +48,7 @@ export class PatientsController {
   @Delete(':id')
   @Roles('admin')
   async remove(@Param('id', ParseUUIDPipe) id: string, @Request() req: RequestWithUser) {
+    await this.patientsService.remove(id, req.user.userId);
     return this.patientsService.remove(id, req.user.userId);
   }
 }

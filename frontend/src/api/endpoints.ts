@@ -60,6 +60,19 @@ export const appointmentApi = {
 };
 
 export const recordApi = {
-  create: (data: any) => api.post('/records', data),
-  getByPatient: (patientId: string) => api.get(`/records/patient/${patientId}`),
+  getAll: (params?: { patientId?: string; doctorId?: string; search?: string }) =>
+    api.get('/medical-records', { params }),
+
+  getById: (id: string) => api.get(`/medical-records/${id}`),
+
+  create: (data: any) => api.post('/medical-records', data),
+
+  update: (id: string, data: any) => api.put(`/medical-records/${id}`, data),
+
+  delete: (id: string) => api.delete(`/medical-records/${id}`),
+};
+
+export const auditApi = {
+  getLogs: (limit?: number, offset?: number) =>
+    api.get('/audit', { params: { limit, offset } }),
 };

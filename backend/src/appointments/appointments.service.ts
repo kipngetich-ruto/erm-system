@@ -42,7 +42,6 @@ export class AppointmentsService {
     if (filters.fromDate) conditions.push(gte(appointments.scheduledDate, new Date(filters.fromDate)));
     if (filters.toDate) conditions.push(lte(appointments.scheduledDate, new Date(filters.toDate)));
 
-    // ✅ Cast the initial query to 'any' to allow chaining .where() and .orderBy() dynamically
     let query: any = this.db
         .select({
         id: appointments.id,
@@ -94,7 +93,12 @@ export class AppointmentsService {
   }
 
   async update(id: string, data: UpdateAppointmentDto, userId: string, userRole: string) {
-    const existing = await this.findOne(id);
+    const existing = await this.findOne(id).catch(() => null);
+    
+    if (!existing) {
+      throw new NotFoundException('Appointment not found');
+    }
+
     if (userRole === 'doctor' && existing.doctorId !== userId) {
       throw new ForbiddenException('You can only update your own appointments');
     }

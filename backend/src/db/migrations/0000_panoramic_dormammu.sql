@@ -142,4 +142,56 @@ ALTER TABLE "patients" ADD CONSTRAINT "patients_registered_by_users_id_fk" FOREI
 ALTER TABLE "prescriptions" ADD CONSTRAINT "prescriptions_patient_id_patients_id_fk" FOREIGN KEY ("patient_id") REFERENCES "public"."patients"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "prescriptions" ADD CONSTRAINT "prescriptions_doctor_id_users_id_fk" FOREIGN KEY ("doctor_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "prescriptions" ADD CONSTRAINT "prescriptions_pharmacist_id_users_id_fk" FOREIGN KEY ("pharmacist_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE VIEW "public"."doctor_patient_view" AS (
+  SELECT
+    p.id AS patient_id,
+    p.full_name AS full_name,
+    p.dob AS dob,
+    p.gender AS gender,
+    p.phone AS phone,
+    p.email AS email,
+    p.address AS address,
+    mr.id AS record_id,
+    mr.encrypted_diagnosis AS encrypted_diagnosis,
+    mr.encrypted_treatment AS encrypted_treatment,
+    mr.encrypted_notes AS encrypted_notes,
+    mr.visit_date AS visit_date,
+    mr.is_follow_up AS is_follow_up,
+    u.email AS doctor_email
+  FROM patients p
+  LEFT JOIN medical_records mr ON p.id = mr.patient_id
+  LEFT JOIN users u ON mr.doctor_id = u.id AND u.role = 'doctor'
+);--> statement-breakpoint
+CREATE VIEW "public"."nurse_patient_view" AS (
+  SELECT
+    p.id AS patient_id,
+    p.full_name AS full_name,
+    p.dob AS dob,
+    p.gender AS gender,
+    p.phone AS phone,
+    p.email AS email,
+    p.address AS address,
+    a.scheduled_date AS next_appointment,
+    a.reason AS appointment_reason
+  FROM patients p
+  LEFT JOIN appointments a
+    ON p.id = a.patient_id
+    AND a.status = 'scheduled'
+    AND a.scheduled_date >= CURRENT_DATE
+  ORDER BY a.scheduled_date
+);--> statement-breakpoint
+CREATE VIEW "public"."receptionist_patient_view" AS (
+  SELECT
+    p.id AS patient_id,
+    p.full_name AS full_name,
+    p.dob AS dob,
+    p.gender AS gender,
+    p.phone AS phone,
+    p.email AS email,
+    p.address AS address,
+    p.created_at AS registration_date,
+    u.email AS registered_by
+  FROM patients p
+  LEFT JOIN users u ON p.registered_by = u.id
+);

@@ -71,6 +71,7 @@ export class AppointmentsController {
   @Delete(':id')
   @Roles('admin', 'doctor')
   async remove(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
-    return this.appointmentsService.remove(id, req.user.userId, req.user.role);
+    await this.appointmentsService.remove(id, req.user.userId, req.user.role);
+    return { statusCode: 204 };
   }
 }
